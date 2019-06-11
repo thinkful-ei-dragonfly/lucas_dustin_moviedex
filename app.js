@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -6,16 +7,19 @@ const MOVIEDEX = require('./moviedex.json');
 
 const app = express();
 
+const API_TOKEN = process.env.API_TOKEN;
+
 function validateBearerToken(req, res, next) {
-  if (false) {
-    return res.status(401).send('Unauthorized')
+  if (app.get('Authorization').split(' ')[1] === API_TOKEN) {
+    return res.status(401).send('Unauthorized');
   }
+  next();
 }
 
 app.use(morgan('dev'));
 app.use(cors());
 app.use(helmet());
-// app.use(validateBearerToken)
+app.use(validateBearerToken);
 
 
 app.get('/movie', (req, res) => {

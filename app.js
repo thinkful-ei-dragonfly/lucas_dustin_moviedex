@@ -12,37 +12,35 @@ function validateBearerToken(req, res, next) {
   }
 }
 
-app.use(morgan('dev'))
-app.use(cors())
-app.use(helmet())
+app.use(morgan('dev'));
+app.use(cors());
+app.use(helmet());
 // app.use(validateBearerToken)
 
 
 app.get('/movie', (req, res) => {
-  const { genre, country, avg_vote} = req.query;
+  const { genre = '', country = '', avg_vote} = req.query;
 
-  if (genre || country || avg_vote) {
-    let movieResults = []
-    if (genre) {
-      genreResults = MOVIEDEX.filter(movie => {
-        return movie.genre.toLowerCase().includes(genre.toLowerCase())
-      })
-      movieResults = genreResults;
-      // return res.send(movieResults)
-    }
-    if (country) {
-      if (genreResults) {
-        
-      }
-      let countryResults = MOVIEDEX.filter(movie => {
-        return movie.country.toLowerCase().includes(country.toLowerCase())
-      })
+  let filteredMovies = MOVIEDEX.filter(movie => {
+    return movie.genre.toLowerCase().includes(genre.toLowerCase());
+  });
 
+  filteredMovies = filteredMovies.filter(movie =>{
+    return movie.country.toLowerCase().includes(country.toLowerCase());
+  });
+
+  if (avg_vote) {
+    const avg_voteNum = parseFloat(avg_vote);
+
+    if(isNaN(avg_voteNum)){
+      res.status(400).send('avg_vote must be a number')
     }
-    res.send(movieResults)
+    filteredMovies = filteredMovies.filter(movie => {
+      return (movie.avg_vote >= avg_voteNum);     
+    });
   }
-  // return res.send('movie')
-})
+  res.send(filteredMovies);
+});
 app.listen(8000, () => {
   console.log('Server running at port 8000');
 })

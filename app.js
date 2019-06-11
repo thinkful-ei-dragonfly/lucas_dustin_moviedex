@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config()
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -7,19 +7,21 @@ const MOVIEDEX = require('./moviedex.json');
 
 const app = express();
 
-const API_TOKEN = process.env.API_TOKEN;
-
 function validateBearerToken(req, res, next) {
-  if (app.get('Authorization').split(' ')[1] === API_TOKEN) {
-    return res.status(401).send('Unauthorized');
+  const authToken = req.get('Authorization');
+  const apiToken = process.env.API_TOKEN;
+
+  if (!authToken || authToken.split(' ')[1] !== apiToken) {
+    return res.status(401).json({ error: 'Unauthorized request'})
   }
+
   next();
 }
 
 app.use(morgan('dev'));
 app.use(cors());
 app.use(helmet());
-app.use(validateBearerToken);
+app.use(validateBearerToken)
 
 
 app.get('/movie', (req, res) => {
@@ -40,7 +42,7 @@ app.get('/movie', (req, res) => {
       res.status(400).send('avg_vote must be a number')
     }
     filteredMovies = filteredMovies.filter(movie => {
-      return (movie.avg_vote >= avg_voteNum);     
+      return (movie.avg_vote >= avg_voteNum);
     });
   }
   res.send(filteredMovies);

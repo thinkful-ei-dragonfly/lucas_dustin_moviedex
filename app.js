@@ -9,6 +9,7 @@ const app = express();
 
 function validateBearerToken(req, res, next) {
   const authToken = req.get('Authorization');
+  
   const apiToken = process.env.API_TOKEN;
 
   if (!authToken || authToken.split(' ')[1] !== apiToken) {
@@ -41,7 +42,7 @@ app.get('/movie', (req, res) => {
     const avg_voteNum = parseFloat(avg_vote);
 
     if(isNaN(avg_voteNum)){
-      res.status(400).send('avg_vote must be a number')
+      res.status(400).send('avg_vote must be a number');
     }
     filteredMovies = filteredMovies.filter(movie => {
       return (movie.avg_vote >= avg_voteNum);
